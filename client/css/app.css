@@ -1,0 +1,167 @@
+/**
+LANDING PAGE 
+*/
+.landing-page {
+padding-right: 20px;
+padding-left: 20px;
+background-color: #fff;
+}
+.landing-page .header {
+background-color: #33cccc; 
+margin-top: 20px;
+}
+.landing-page .header .title {
+text-align: center; 
+margin-top: 5%; 
+line-height: 1; 
+font-size: 750%; 
+color: #ffffff; 
+font-family: MuseoSlab; 
+font-weight: 500;
+}
+.landing-page .content {
+background-color: #33cccc;
+}
+.landing-page .content #howToWork {
+margin: 10%;
+width: 80%;
+}
+.landing-page .content #howToWork img {
+margin: 0 auto;
+}
+.landing-page .content .booking-form {
+margin: 10%;
+}
+.landing-page .content .booking-form .search-bar {
+width: 90%;
+background: #fff;
+overflow: hidden;
+margin: 0 auto;
+}
+.landing-page .content .booking-form .search-bar button {
+font-family: Lato; 
+font-weight: bold;
+float: right;
+}
+.landing-page .content .booking-form .search-bar input {
+float: left;
+font-family: Lato; 
+font-weight: lighter; 
+color: #999999;
+line-height: 1;
+border: none;
+padding: 0px;
+}
+@media (min-width: 1200px) {
+.landing-page .content .booking-form .search-bar {
+-webkit-border-radius: 65px;
+-moz-border-radius: 65px;
+border-radius: 65px;
+background: #fff;
+height: 130px;
+}
+.landing-page .content .booking-form .search-bar input {
+width: 80%;
+height: 120px;
+margin: 5px 0px 0 55px;
+font-size: 40px;
+}
+.landing-page .content .booking-form .search-bar button {
+font-size: 40px;
+-webkit-border-radius: 60px;
+-moz-border-radius: 60px;
+border-radius: 60px;
+width: 120px;
+height: 120px;
+margin: 5px 5px 0 0;
+}
+}
+@media (min-width: 980px) and (max-width: 1199px) {
+.landing-page .content .booking-form .search-bar {
+-webkit-border-radius: 55px;
+-moz-border-radius: 55px;
+border-radius: 55px;
+background: #fff;
+height: 110px;
+}
+.landing-page .content .booking-form .search-bar input {
+width: 70%;
+height: 100px;
+margin: 5px 0px 0 55px;
+font-size: 40px;
+}
+.landing-page .content .booking-form .search-bar button {
+font-size: 30px;
+-webkit-border-radius: 55px;
+-moz-border-radius: 55px;
+border-radius: 55px;
+width: 100px;
+height: 100px;
+margin: 5px 5px 0 0;
+}
+}
+@media (min-width: 768px) and (max-width: 979px) {
+
+}
+
+@media (max-width: 767px) {
+.landing-page .content .booking-form .search-bar {
+-webkit-border-radius: 30px;
+-moz-border-radius: 30px;
+border-radius: 30px;
+background: #fff;
+height: 70px;
+}
+.landing-page .content .booking-form .search-bar input {
+width: 70%;
+height: 60px;
+margin: 5px 0px 0 20px;
+font-size: 20px;
+}
+.landing-page .content .booking-form .search-bar button {
+font-size: 16px;
+-webkit-border-radius: 30px;
+-moz-border-radius: 30px;
+border-radius: 30px;
+width: 60px;
+height: 60px;
+margin: 5px 5px 0 0;
+}
+}
+@media (max-width: 480px) {
+.landing-page .content .booking-form .search-bar {
+-webkit-border-radius: 30px;
+-moz-border-radius: 30px;
+border-radius: 30px;
+background: #fff;
+height: 70px;
+}
+.landing-page .content .booking-form .search-bar input {
+width: 70%;
+height: 60px;
+margin: 5px 0px 0 20px;
+font-size: 20px;
+}
+.landing-page .content .booking-form .search-bar button {
+font-size: 16px;
+-webkit-border-radius: 30px;
+-moz-border-radius: 30px;
+border-radius: 30px;
+width: 60px;
+height: 60px;
+margin: 5px 5px 0 0;
+}
+}
+
+.landing-page .footer {
+background-color: #ccffff;
+}
+.landing-page .footer .footer-links {
+font-size: 1.925em; 
+margin: 3% 8%; 
+font-family: Lato; 
+font-weight: bold;
+}
+.landing-page .footer .footer-links img {
+margin-right:20px 
+}
