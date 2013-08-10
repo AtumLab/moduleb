@@ -7,11 +7,11 @@
  * </ul>
  */
  Sandbox = (function(){ 
-    function sb(core, instanceId, options) {
-      this.core = core;
-      this.instanceId = instanceId;
-      this.options = options != null ? options : {};
-      this.core._mediator.installTo(this);
-    }
-    return sb;
+  function sb(core, instanceId, options) {
+    this.core = core;
+    this.instanceId = instanceId;
+    this.options = options != null ? options : {};
+    this.core._mediator.installTo(this);
+  }
+  return sb;
  })();

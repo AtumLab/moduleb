@@ -17,14 +17,68 @@ _APPNAME = '';
  */
 var _modules = {};
 var _instances = {};
+var _sandboxes = {};
+var _findModule = function (ns_string, callback, content) {
+    var parts = ns_string.split('.'),
+      parent = root[_APPNAME]['module'],
+      i, len = parts.length;
+    // strip redundant leading global
+    if (parts[0] === _APPNAME) {
+      parts = parts.slice(1);
+      len -= 1;
+    }
+    for (i = 0; i < len; i += 1) {
+      if (typeof parent[parts[i]] === "undefined") {
+        if(_.isFunction(callback)){
+          var err = new Error("not found the module with : " + ns_string);
+          if(content)
+            return callback.call(content, null, err));
+          else
+            return callback(null, err);
+        }          
+        return null;
+      }     
+      parent = parent[parts[i]];
+    }
+    if(_.isFunction(callback)){
+      if(content)
+        return callback.call(content, parent, null);
+      else
+        return callback(parent, null);
+    }
+    return parent;
+};
+_findsModule = function () {
+    var i = 0, len = arguments.length, callback, moduleLoaded =[], module, content;
+    for(; i< len ;i++){
+      if(_.isFunction(arguments[i])){
+        callback = arguments[i];
+      }       
+      else if(_.isString(arguments[i])){
+        module = root[_APPNAME].find(arguments[i]);
+        if(module != null)
+          moduleLoaded.push(module);
+        else
+          throw new Error("not found the module with : " + arguments[i]);
+      }
+      else if(_.isObject(arguments[i])){
+        content = arguments[i];
+      }     
+    }
+    if(!content){
+      content = root[_APPNAME];
+    }
+    return callback.apply(content, moduleLoaded);
+};
 /**
  * Module B
  */
-ModuleB = _CoreObject({
+var c = _CoreObject({
   _init: function(name, obj){
     _APPNAME = name;
     root[_APPNAME] = this;
     _.extend(this, obj);
+    this._mediator = new _Mediator();
     this.implement();
   }
 });
@@ -54,7 +108,7 @@ ModuleB.prototype.find = function(moduleId){
 };
 
 ModuleB.prototype._start = function(moduleId, opt, cb) {
-  var self = this;
+  var self = this, _ref;
   if (opt == null) {
     opt = {};
   }
@@ -65,44 +119,16 @@ ModuleB.prototype._start = function(moduleId, opt, cb) {
     cb = opt;
     opt = {};
   }
-  
-      e = checkType("string", moduleId, "module ID") || checkType("object", opt, "second parameter") || (this._modules[moduleId] == null ? "module doesn't exist" : void 0);
-      if (e) {
-        return fail(e);
-      }
-      id = opt.instanceId || moduleId;
-      if (((_ref = this._instances[id]) != null ? _ref.running : void 0) === true) {
-        return fail(new Error("module was already started"));
-      }
-      initInst = function(err, instance) {
-        if (err) {
-          _this.log.error(err);
-          return cb(err);
-        }
-        try {
-          if (util.hasArgument(instance.init, 2)) {
-            return instance.init(instance.options, function(err) {
-              if (!err) {
-                instance.running = true;
-              }
-              return cb(err);
-            });
-          } else {
-            instance.init(instance.options);
-            instance.running = true;
-            return cb(null);
-          }
-        } catch (_error) {
-          e = _error;
-          if (e) {
-            return fail(e);
-          }
-        }
-      };
-      return this.boot(function() {
-        return _this._createInstance(moduleId, opt.instanceId, opt.options, initInst);
-      });
-    };
+  id = opt.instanceId || moduleId;
+  if (((_ref = this._instances[id]) != null ? _ref.running : void 0) === true) {
+    return cb(new Error("module was already started"));
+  }
+  self._createInstance(moduleId, opt.instanceId, opt.options, function(err, instance) {
+    if (err) {
+      return cb(err);
+    }
+  });
+};
 
 ModuleB.prototype._createInstance = function(moduleId, instanceId, opt, cb) {
   if (instanceId == null) {
@@ -110,74 +136,43 @@ ModuleB.prototype._createInstance = function(moduleId, instanceId, opt, cb) {
   }
   module = this._modules[moduleId];
   if (_instances[instanceId] != null) {
-    return cb(_instances[instanceId]);
+    return cb(null, _instances[instanceId]);
   }
-      iOpts = {};
-      _ref = [module.options, opt];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        o = _ref[_i];
-        if (o) {
-          for (key in o) {
-            val = o[key];
-            if (iOpts[key] == null) {
-              iOpts[key] = val;
-            }
-          }
-        }
-      }
-      sb = new this.Sandbox(this, instanceId, iOpts);
-      sb.moduleId = moduleId;
-      return this._runSandboxPlugins('init', sb, function(err) {
-        var instance;
-        instance = new module.creator(sb);
-        if (typeof instance.init !== "function") {
-          return cb(new Error("module has no 'init' method"));
-        }
-        instance.options = iOpts;
-        instance.id = instanceId;
-        _this._instances[instanceId] = instance;
-        _this._sandboxes[instanceId] = sb;
-        return cb(null, instance);
-      });
-    };
+  var iOpts = _.extend(module.options, opt)
+  sb = new this.Sandbox(this, instanceId, iOpts);
+  sb.moduleId = moduleId;
+  var instance;
+  instance = new module.creator(sb);
+  if (typeof instance._init !== "function") {
+    return cb(new Error("module has no '_init' method"), null);
+  }
+  instance.options = iOpts;
+  instance.id = instanceId;
+  _instances[instanceId] = instance;
+  _sandboxes[instanceId] = sb;
+  return cb(null, instance);      
+};
+ModuleB.prototype._startAll = function(mods, cb) {
+  var done, m, startAction,
+    _this = this;
+  if (mods == null) {
+    mods = [];
+    for (m in _modules) {
+      mods.push(m);
+    }      
+  }
+  for (m in mods) {
+    _this.start(m, _modules[m].options, function (err) {
 
-Core.prototype._startAll = function(mods, cb) {
-      var done, m, startAction,
-        _this = this;
-      if (mods == null) {
-        mods = (function() {
-          var _results;
-          _results = [];
-          for (m in this._modules) {
-            _results.push(m);
-          }
-          return _results;
-        }).call(this);
-      }
-      startAction = function(m, next) {
-        return _this.start(m, _this._modules[m].options, next);
-      };
-      done = function(err) {
-        var e, i, mdls, x;
-        if ((err != null ? err.length : void 0) > 0) {
-          mdls = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (i = _i = 0, _len = err.length; _i < _len; i = ++_i) {
-              x = err[i];
-              if (x != null) {
-                _results.push("'" + mods[i] + "'");
-              }
-            }
-            return _results;
-          })();
-          e = new Error("errors occoured in the following modules: " + mdls);
-        }
-        return typeof cb === "function" ? cb(e) : void 0;
-      };
-      util.doForAll(mods, startAction, done, true);
-      return this;
-    };
+    });
+  }
+  return this;
+};
 
+c.prototype.implement = function(moduleName, ob){
+  if(ob)
+    _.extend(this, ob);      
+  };    
+}
 
-ModuleB.VERSION = 0.2;
+moduleb.Core = c;

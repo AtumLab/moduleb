@@ -10,7 +10,15 @@ Package.on_use(function (api) {
   api.use(["underscore"], both);
   api.use(["templating", "jquery", "session"], "client");
   // 2-load file boot
-  api.add_files(["both/coreobject.js", "both/core.js", "both/mediator.js"], both);  
+  api.add_files([
+    "both/_helper.js",
+    "both/_boot.js",
+    "both/coreobject.js", 
+    "both/core.js"
+    //"both/mediator.js",
+    //"both/config.js", 
+    //"both/module.js"
+    ], both);  
   
   // 3-load libraries
   
@@ -28,7 +36,9 @@ Package.on_use(function (api) {
   api.add_files([], "server");
 
   // 7-client
-  api.add_files(["client/router.js"], "client");
+  api.add_files([
+    //"client/router.js"
+    ], "client");
 
 });
 
