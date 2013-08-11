@@ -6,12 +6,9 @@
  *    <li> Exposing some basic functions of core's base lib to sandbox
  * </ul>
  */
- Sandbox = (function(){ 
-  function sb(core, instanceId, options) {
-    this.core = core;
-    this.instanceId = instanceId;
-    this.options = options != null ? options : {};
-    this.core._mediator.installTo(this);
-  }
-  return sb;
- })();
+var sandbox = function (core, instanceId, options) {
+  this.core = core;
+  this.instanceId = instanceId;
+  this.options = options != null ? options : {};
+}
+moduleb.Sandbox = sandbox;

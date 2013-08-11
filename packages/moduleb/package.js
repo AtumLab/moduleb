@@ -14,10 +14,11 @@ Package.on_use(function (api) {
     "both/_helper.js",
     "both/_boot.js",
     "both/coreobject.js", 
-    "both/core.js"
-    //"both/mediator.js",
+    "both/core.js",
+    "both/mediator.js",
+    "both/sandbox.js",
     //"both/config.js", 
-    //"both/module.js"
+    "both/module.js"
     ], both);  
   
   // 3-load libraries

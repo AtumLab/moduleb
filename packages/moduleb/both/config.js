@@ -1,6 +1,7 @@
 /**
  * config
  */
+//this.ENVIRONMENT = DEVELOPMENT;
 var _config = {};
 moduleb.Core.prototype.setConfigs = function(obj){
   _.extend(_config, obj);  

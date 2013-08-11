@@ -12,12 +12,6 @@ var root = this;
  */
 _APPNAME = '';
 /**
- * Module
- * @private
- */
-var _modules = {};
-var _instances = {};
-var _sandboxes = {};
 var _findModule = function (ns_string, callback, content) {
     var parts = ns_string.split('.'),
       parent = root[_APPNAME]['module'],
@@ -70,22 +64,53 @@ _findsModule = function () {
     }
     return callback.apply(content, moduleLoaded);
 };
+*/
 /**
  * Module B
  */
-var c = _CoreObject({
-  _init: function(name, obj){
-    _APPNAME = name;
-    root[_APPNAME] = this;
-    _.extend(this, obj);
-    this._mediator = new _Mediator();
-    this.implement();
+var core = function(name, obj){
+  _APPNAME = name;
+  root[_APPNAME] = this;
+  _.extend(this, obj);
+  this._env = null;
+  this._isStart = false;
+  if (Meteor.isClient) {
+    this._env = CLIENT;
+
+    this.deps = new Deps.Dependency;
+    var app = this;
+    this.getStart = function () {
+      app.deps.depend();
+      return app._isStart;
+    };
+    this.setStart = function (value) {
+      app._isStart = value;
+      app.deps.changed();
+    };
+    /**
+     * can use for template
+     */
+    this.checkStart = function () {
+      return app.getStart();
+    };
+    Deps.autorun(this.checkStart);
   }
-});
+  else if (Meteor.isServer) {
+    this._env = SERVER;      
+  }
+  if(this._init)
+    this._init();
+  if(Meteor.isClient && this._initClient){
+    this._initClient();
+  }
+  else if (Meteor.isServer && this._initServer) {
+    this._initServer();
+  }
+};
 /**
  * 
  * @private
- */
+ 
 ModuleB.prototype._register = function(moduleId, creator, opt){
   if(opt == null){
     opt = {};
@@ -174,5 +199,6 @@ c.prototype.implement = function(moduleName, ob){
     _.extend(this, ob);      
   };    
 }
+*/
 
-moduleb.Core = c;
+moduleb.Core = core;

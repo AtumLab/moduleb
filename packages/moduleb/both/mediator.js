@@ -3,13 +3,11 @@
  * 
  * @private
  */
-_channels = {};
+var _channels = {};
 
-_Mediator = (function(){
-  var Mediator = _CoreObject({
-    _init: function(){      
-      this.implement();
-    }
+var mediator = (function(){
+  var Mediator = moduleb.CoreObject({
+    _init: function(){}
   });
   Mediator.prototype.on = function(channel, fn, context){
     var self = this;
@@ -41,6 +39,29 @@ _Mediator = (function(){
       }
     }.attach();
   };
+  Mediator.prototype.emit = function(channel, data, cb) {
+    var chnls, sub, subscribers, tasks;
+      if (cb == null) {
+        cb = function() {};
+      }
+      if (typeof data === "function") {
+        cb = data;
+        data = void 0;
+      }
+      if (typeof channel !== "string") {
+        return false;
+      }
+      subscribers = _channels[channel] || [];
+      var _i, _len;
+
+      for (_i = 0, _len = subscribers.length; _i < _len; _i++) {
+        sub = subscribers[_i];
+        sub.callback.apply(sub.context, [data, channel]);        
+      }
+      
+      return this;
+  };
+
   Mediator.prototype.off = function(ch, cb) {
     var id;
     switch (typeof ch) {
@@ -70,28 +91,6 @@ _Mediator = (function(){
     }
     return this;
   };
-  Mediator.prototype.emit = function(channel, data, cb) {
-    var chnls, sub, subscribers, tasks;
-      if (cb == null) {
-        cb = function() {};
-      }
-      if (typeof data === "function") {
-        cb = data;
-        data = void 0;
-      }
-      if (typeof channel !== "string") {
-        return false;
-      }
-      subscribers = _channels[channel] || [];
-      var _i, _len;
-
-      for (_i = 0, _len = subscribers.length; _i < _len; _i++) {
-        sub = subscribers[_i];
-        sub.callback.apply(sub.context, [data, channel]);        
-      }
-      
-      return this;
-  };
   /**
    * Remove 
    * @param {object} o Mediator object 
@@ -103,12 +102,12 @@ _Mediator = (function(){
    */
   Mediator._rm = function(o, ch, cb, ctxt) {
     var s;
-    if(o.channels[ch] == null){
+    if(_channels[ch] == null){
       return;
     }
-    return o.channels[ch] = (function() {
+    return _channels[ch] = (function() {
       var _i, _len, _ref, _results;
-      _ref = o.channels[ch];
+      _ref = _channels[ch];
       _results = [];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         s = _ref[_i];
@@ -122,3 +121,4 @@ _Mediator = (function(){
 
   return Mediator;
 })();
+moduleb.Mediator = mediator;

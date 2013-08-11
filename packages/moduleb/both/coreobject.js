@@ -4,23 +4,25 @@
  */
 var root = this;
 var co = function(obj){
-  var p = function(){
+  var CoreObject = function(){
     _.extend(this, obj);
-    this._app = root[_APPNAME];    
+    /** Environment */    
+    this._env = null;        
     if(this._init)
       this._init.apply(this, arguments);
-    if(Meteor.isClient && this._initClient){
-      /** Environment */
+    if(Meteor.isClient){
       this._env = CLIENT;
-      this._initClient();
+      if(this._initClient)
+        this._initClient();
     }
-    else if (Meteor.isServer && this._initServer) {
-      /** Environment */
+    else if (Meteor.isServer) {
       this._env = SERVER;
-      this._initServer();
+      if(this._initServer)
+        this._initServer();
     }
+    this._app = root[_APPNAME];
   };
-  return p;
+  return CoreObject;
 }
 
 moduleb.CoreObject = co;
