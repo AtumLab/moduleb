@@ -16,9 +16,8 @@ var _sandboxes = {};
  * @return null
  * @private
  */ 
-var namespace = function (ns_string, obj) {
+var namespace = function (ns_string, obj, parent) {
   var parts = ns_string.split('.'),
-    parent = _modules,
     i, len = parts.length-1;
   // strip redundant leading global
   if (parts[0] === _APPNAME) {
@@ -36,6 +35,10 @@ var namespace = function (ns_string, obj) {
     throw new Error("module " + ns_string + " was already registered");         
   parent[parts[i]] = obj;
 };
+var namespaceForModule = function(ns_string, obj){
+  namespace(ns_string, obj, _modules);
+}
+
 /** 
  * Find a module
  * 
@@ -82,14 +85,14 @@ moduleb.Core.prototype.Module = function(moduleId, creator, opt, cb){
     if(!_.isString(moduleId) || !_.isFunction(creator) || !_.isObject(opt)){
       throw new Error("could not register module " + moduleId);
     }
-    namespace(moduleId, {
+    namespaceForModule(moduleId, {
       creator: creator,
       options: opt,
       id: moduleId
     });
     cb (null);
     return this;    
-  } catch (e) {    
+  } catch (e) {
     cb (e);
   }
 };
@@ -102,16 +105,14 @@ moduleb.Core.prototype.implement = function(moduleId, obj){
       throw new Error("could not implement module " + moduleId);
     }
     var module = find(moduleId);
-    _.extend(module, obj);
+    _.extend(module.creator.prototype, obj);
     return this;    
   } catch (e) {
     console.error(e.message);
     throw e;
   }         
 };
-/**
- *
-moduleb.Core.prototype._start = function(moduleId, opt, cb) {
+moduleb.Core.prototype.start = function(moduleId, opt, cb) {
   var self = this, _ref;
   if (opt == null) {
     opt = {};
@@ -125,37 +126,53 @@ moduleb.Core.prototype._start = function(moduleId, opt, cb) {
   }
   id = opt.instanceId || moduleId;
   if (((_ref = _instances[id]) != null ? _ref.running : void 0) === true) {
-    return cb(new Error("module was already started"), null);
+    cb(new Error("module was already started"), null);
   }
-  self._createInstance(moduleId, opt.instanceId, opt.options, function(err, instance) {
-    if (err) {
-      return cb(err, null);
+  try {
+    var instance = self._createInstance(moduleId, opt.instanceId, opt.options);
+    /** Environment */    
+    instance._env = null;
+    if(instance._init)
+      instance._init.apply(instance, [instance.options]);
+    if(Meteor.isClient){
+      instance._env = CLIENT;
+      if(instance._initClient)
+        instance._initClient();
     }
-    return cb (null, instance)
-  });
+    else if (Meteor.isServer) {
+      instance._env = SERVER;
+      if(instance._initServer)
+        instance._initServer();
+    }
+    instance._app = self;
+    cb (null, instance)
+  } catch (e) {
+    cb (e, null);
+  }
+  
 };
 
-moduleb.Core.prototype._createInstance = function(moduleId, instanceId, opt, cb) {
+moduleb.Core.prototype._createInstance = function(moduleId, instanceId, opt) {
   if (instanceId == null) {
     instanceId = moduleId;
   }
   var module = find(moduleId);
   if (_instances[instanceId] != null) {
-    return cb(null, _instances[instanceId]);
+    return _instances[instanceId];
   }
   var iOpts = _.extend(module.options, opt)
-  sb = new this.Sandbox(this, instanceId, iOpts);
+  sb = new moduleb.Sandbox(this, instanceId, iOpts);
   sb.moduleId = moduleId;
   var instance;
   instance = new module.creator(sb);
   if (typeof instance._init !== "function") {
-    return cb(new Error("module has no '_init' method"), null);
+    throw new Error("module has no '_init' method");
   }
   instance.options = iOpts;
   instance.id = instanceId;
   _instances[instanceId] = instance;
   _sandboxes[instanceId] = sb;
-  return cb(null, instance);      
+  return instance;      
 }
 /**
  *

@@ -9,6 +9,13 @@ if (Meteor.isServer) {
 if (Meteor.isClient) {
   // test only client
 }
+Tinytest.add('moduleb', function(test){
+  test.equal(moduleb.VERSION, 0.2, "moduleb.VERSION doesnt exit");
+  test.equal(_.isFunction(moduleb.Mediator), true, "[app].Mediator check Mediator expected a function");
+  test.equal(_.isFunction(moduleb.Sandbox), true, "[app].Sandbox check Sandbox expected a function");
+  test.equal(_.isFunction(moduleb.Core), true, "[app].Core check Core expected a function");
+  test.equal(_.isFunction(moduleb.CoreObject), true, "[app].CoreObject check CoreObject expected a function");
+});
 
 Tinytest.add('core', function(test){
   var count = 0;
@@ -77,19 +84,39 @@ testAsyncMulti("module", [
     } catch (e) {    
       test.equal(e.message, "could not implement module Log", "[app].Module expected error object {not found}");
     }
-    /**
-    moduletest.implement( "Log", {
-      hello: function(){
-        return 'hello word';
+  },
+  function (test, expect) {
+    moduletest.Module( "namespace.OtherModule", function( sandbox ){      
+      var r = {      
+        _init : function (option) {
+          test.equal(option.start, true, "[module]._init expected option from [app].start is true");
+        },
+        _initClient : function (option) {},
+        _initServer : function (option) {},
+        _destroy : function () {}
+      };
+      _.extend(r, this);
+      return r;
+    }, {module: true}, function(e){
+      if(!e){      
+        moduletest.implement( "namespace.OtherModule", {
+          hello: function(){
+            return 'hello word';
+          }
+        });
+        moduletest.start("namespace.OtherModule", 
+          {instanceId: "otherModule", options: {start: true}}, 
+          expect(function(err, ins){
+            test.equal(err, null, "[app].start expected err is null");
+            test.equal(ins.hello(), 'hello word', "test implement expected hello() = hello word");
+        }));
       }
     });
-    */    
   }
   ]
 );
 testAsyncMulti("mediator", [
     function (test, expect) {
-      test.equal(_.isFunction(moduleb.Mediator), true, "[app].Mediator check Mediator expected a function");    
       var m = new moduleb.Mediator(), result,
       callBack = function(data){
         result = data;
@@ -106,7 +133,7 @@ testAsyncMulti("mediator", [
 
 testAsyncMulti("sandbox", [
     function (test, expect) {
-      test.equal(_.isFunction(moduleb.Sandbox), true, "[app].Sandbox check Sandbox expected a function");  
+    
     }
   ]
 );
