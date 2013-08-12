@@ -17,7 +17,7 @@ Package.on_use(function (api) {
     "both/core.js",
     "both/mediator.js",
     "both/sandbox.js",
-    //"both/config.js", 
+    "both/config.js", 
     "both/module.js"
     ], both);  
   

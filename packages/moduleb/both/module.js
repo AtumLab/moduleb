@@ -127,6 +127,7 @@ moduleb.Core.prototype.start = function(moduleId, opt, cb) {
   id = opt.instanceId || moduleId;
   if (((_ref = _instances[id]) != null ? _ref.running : void 0) === true) {
     cb(new Error("module was already started"), null);
+    return;
   }
   try {
     var instance = self._createInstance(moduleId, opt.instanceId, opt.options);
@@ -145,6 +146,7 @@ moduleb.Core.prototype.start = function(moduleId, opt, cb) {
         instance._initServer();
     }
     instance._app = self;
+    instance.running = true;
     cb (null, instance)
   } catch (e) {
     cb (e, null);

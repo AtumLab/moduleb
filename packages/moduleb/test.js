@@ -112,6 +112,11 @@ testAsyncMulti("module", [
         }));
       }
     });
+  },
+  function (test, expect) {
+    moduletest.start("namespace.OtherModule", {instanceId: "otherModule"}, expect(function(err, ins){
+      test.equal(err.message, "module was already started", "[app].Module expected error object {already started}");            
+    }));
   }
   ]
 );
