@@ -90,10 +90,14 @@ moduleb.Core.prototype.Module = function(moduleId, creator, opt, cb){
       options: opt,
       id: moduleId
     });
-    cb (null);
+    if(cb)
+      cb (null);
     return this;    
   } catch (e) {
-    cb (e);
+    if(cb)
+      cb (e);
+    else
+      throw e;
   }
 };
 moduleb.Core.prototype.implement = function(moduleId, obj){
@@ -117,16 +121,14 @@ moduleb.Core.prototype.start = function(moduleId, opt, cb) {
   if (opt == null) {
     opt = {};
   }
-  if (cb == null) {
-    cb = function() {};
-  }
   if (typeof opt === "function") {
     cb = opt;
     opt = {};
   }
   id = opt.instanceId || moduleId;
   if (((_ref = _instances[id]) != null ? _ref.running : void 0) === true) {
-    cb(new Error("module was already started"), null);
+    if (cb != null)
+      cb(new Error("module was already started"), null);
     return;
   }
   try {
@@ -147,9 +149,13 @@ moduleb.Core.prototype.start = function(moduleId, opt, cb) {
     }
     instance._app = self;
     instance.running = true;
-    cb (null, instance)
+    if (cb != null)
+      cb (null, instance)
   } catch (e) {
-    cb (e, null);
+    if (cb != null)
+      cb (e, null);
+    else
+      throw e
   }
   
 };
@@ -176,23 +182,3 @@ moduleb.Core.prototype._createInstance = function(moduleId, instanceId, opt) {
   _sandboxes[instanceId] = sb;
   return instance;      
 }
-/**
- *
-var Module = CoreObject ({
-  _init : function(name, obj){
-    this.running = true;
-  }
-});
-
-ModuleB.prototype.Module = function(name, obj, opt, cb) {
-  try {
-    this._app.register(name, obj, opt);
-    
-  } catch (e) {
-    if (e instanceof TypeError) {
-
-    }
-    cb (e, null);
-  }
-};
- */

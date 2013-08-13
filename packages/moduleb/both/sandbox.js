@@ -10,5 +10,7 @@ var sandbox = function (core, instanceId, options) {
   this.core = core;
   this.instanceId = instanceId;
   this.options = options != null ? options : {};
+  // extend mediator
+  _.extend(this, new moduleb.Mediator());
 }
 moduleb.Sandbox = sandbox;

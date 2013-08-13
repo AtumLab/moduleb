@@ -136,9 +136,51 @@ testAsyncMulti("mediator", [
   ]
 );
 
-testAsyncMulti("sandbox", [
+testAsyncMulti("module-sandbox", [
     function (test, expect) {
-    
+      moduletest.Module( "moduleA", function( sandbox ){      
+        var r = {
+          _init : function (option) {
+            console.log('moduleA start');
+            sandbox.on("moduleB-action", this.timeLine);
+          },
+          _initClient : function (option) {},
+          _initServer : function (option) {},
+          timeLine: function(time){            
+            test.equal(time, "messageB", "[module] sandbox text expected messageB");
+          },
+          _destroy : function () {}
+        };
+        _.extend(r, this);
+        return r;
+      }, {module: true}, function(e){
+        if(!e){}
+      });
+      moduletest.Module( "moduleB", function( sandbox ){      
+        var r = {
+          _init : function (option) {
+            console.log('moduleB start');
+            sandbox.emit("moduleB-action", "messageB");
+          },
+          _initClient : function (option) {},
+          _initServer : function (option) {},
+          _destroy : function () {}
+        };
+        _.extend(r, this);
+        return r;
+      }, {module: true}, function(e){
+        if(!e){}
+      });
+      moduletest.start("moduleA", 
+        {instanceId: "smoduleA", options: {start: true}}, 
+        function(err, ins){
+        
+      });
+      moduletest.start("moduleB", 
+        {instanceId: "smoduleB", options: {start: true}}, 
+        function(err, ins){
+          
+      });
     }
   ]
 );
