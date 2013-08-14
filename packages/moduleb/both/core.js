@@ -72,8 +72,11 @@ var core = function(name, obj){
   _APPNAME = name;
   root[_APPNAME] = this;
   _.extend(this, obj);
+  // add propertype
   this._env = null;
   this._isStart = false;
+  this._mediator = new moduleb.Mediator();
+  
   if (Meteor.isClient) {
     this._env = CLIENT;
 
@@ -105,78 +108,12 @@ var core = function(name, obj){
   }
   else if (Meteor.isServer && this._initServer) {
     this._initServer();
-  }
+  }  
 };
 /**
  * 
  * @private
  
-ModuleB.prototype._register = function(moduleId, creator, opt){
-  if(opt == null){
-    opt = {};
-  }
-  if(!_.isString(moduleId) || !_.isFunction(creator) || !_.isObject(opt)){
-  	throw new Error("could not register module " + moduleId);
-	}
-  if(_modules[moduleId] != null){
-    throw new Error("module " + moduleId + " was already registered");
-  }
-  _modules[moduleId] = {
-    creator: creator,
-    options: opt,
-    id: moduleId
-  };
-  return this;
-};
-ModuleB.prototype.find = function(moduleId){
-
-};
-
-ModuleB.prototype._start = function(moduleId, opt, cb) {
-  var self = this, _ref;
-  if (opt == null) {
-    opt = {};
-  }
-  if (cb == null) {
-    cb = function() {};
-  }
-  if (typeof opt === "function") {
-    cb = opt;
-    opt = {};
-  }
-  id = opt.instanceId || moduleId;
-  if (((_ref = this._instances[id]) != null ? _ref.running : void 0) === true) {
-    return cb(new Error("module was already started"));
-  }
-  self._createInstance(moduleId, opt.instanceId, opt.options, function(err, instance) {
-    if (err) {
-      return cb(err);
-    }
-  });
-};
-
-ModuleB.prototype._createInstance = function(moduleId, instanceId, opt, cb) {
-  if (instanceId == null) {
-    instanceId = moduleId;
-  }
-  module = this._modules[moduleId];
-  if (_instances[instanceId] != null) {
-    return cb(null, _instances[instanceId]);
-  }
-  var iOpts = _.extend(module.options, opt)
-  sb = new this.Sandbox(this, instanceId, iOpts);
-  sb.moduleId = moduleId;
-  var instance;
-  instance = new module.creator(sb);
-  if (typeof instance._init !== "function") {
-    return cb(new Error("module has no '_init' method"), null);
-  }
-  instance.options = iOpts;
-  instance.id = instanceId;
-  _instances[instanceId] = instance;
-  _sandboxes[instanceId] = sb;
-  return cb(null, instance);      
-};
 ModuleB.prototype._startAll = function(mods, cb) {
   var done, m, startAction,
     _this = this;
@@ -193,12 +130,6 @@ ModuleB.prototype._startAll = function(mods, cb) {
   }
   return this;
 };
-
-c.prototype.implement = function(moduleName, ob){
-  if(ob)
-    _.extend(this, ob);      
-  };    
-}
 */
 
 moduleb.Core = core;

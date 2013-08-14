@@ -121,66 +121,66 @@ testAsyncMulti("module", [
   ]
 );
 testAsyncMulti("mediator", [
-    function (test, expect) {
-      var m = new moduleb.Mediator(), result,
-      callBack = function(data){
-        result = data;
-      };
-      m.on("test", callBack);
-      m.emit("test", "message");
-      test.equal(result, "message", "[app].Mediator check emit(), on() expected message text");
-      m.off("test", callBack);
-      m.emit("test", "message2");
-      test.equal(result, "message", "[app].Mediator check off() expected message text");
-    }
-  ]
-);
+  function (test, expect) {
+    var m = new moduleb.Mediator(), result,
+    callBack = function(data){
+      result = data;
+    };
+    m.on("test", callBack);
+    m.emit("test", "message");
+    test.equal(result, "message", "[app].Mediator check emit(), on() expected message text");
+    m.off("test", callBack);
+    m.emit("test", "message2");
+    test.equal(result, "message", "[app].Mediator check off() expected message text");
+  }
+]);
 
 testAsyncMulti("module-sandbox", [
-    function (test, expect) {
-      moduletest.Module( "moduleA", function( sandbox ){      
-        var r = {
-          _init : function (option) {
-            console.log('moduleA start');
-            sandbox.on("moduleB-action", this.timeLine);
-          },
-          _initClient : function (option) {},
-          _initServer : function (option) {},
-          timeLine: function(time){            
-            test.equal(time, "messageB", "[module] sandbox text expected messageB");
-          },
-          _destroy : function () {}
-        };
-        _.extend(r, this);
-        return r;
-      }, {module: true}, function(e){
-        if(!e){}
-      });
-      moduletest.Module( "moduleB", function( sandbox ){      
-        var r = {
-          _init : function (option) {
-            console.log('moduleB start');
-            sandbox.emit("moduleB-action", "messageB");
-          },
-          _initClient : function (option) {},
-          _initServer : function (option) {},
-          _destroy : function () {}
-        };
-        _.extend(r, this);
-        return r;
-      }, {module: true}, function(e){
-        if(!e){}
-      });
-      moduletest.start("moduleA", 
-        {instanceId: "smoduleA", options: {start: true}}, 
-        function(err, ins){
-        
-      });
-      moduletest.start("moduleB", 
-        {instanceId: "smoduleB", options: {start: true}}, 
-        function(err, ins){
-          
-      });
-    }
-  ]
-);
+  function (test, expect) {
+    moduletest.Module( "moduleA", function( sandbox ){      
+      var r = {
+        _init : function (option) {
+          console.log('moduleA start');
+          sandbox.on("moduleB-action", this.timeLine);
+        },
+        _initClient : function (option) {},
+        _initServer : function (option) {},
+        timeLine: function(time){            
+          test.equal(time, "messageB", "[module] sandbox text expected messageB");
+        },
+        _destroy : function () {}
+      };
+      _.extend(r, this);
+      return r;
+    }, {module: true}, function(e){
+      if(!e){}
+    });
+    moduletest.Module( "moduleB", function( sandbox ){      
+      var r = {
+        _init : function (option) {
+          console.log('moduleB start');
+          this.sendMessage();
+        },
+        _initClient : function (option) {},
+        _initServer : function (option) {},
+        sendMessage : function () {
+          sandbox.emit("moduleB-action", "messageB");
+        },
+        _destroy : function () {}
+      };
+      _.extend(r, this);
+      return r;
+    }, {module: true}, function(e){
+      if(!e){}
+    });
+    moduletest.start("moduleA", 
+      {instanceId: "smoduleA", options: {start: true}}, 
+      function(err, ins){});
+    moduletest.start("moduleB", 
+      {instanceId: "smoduleB", options: {start: true}}, 
+      function(err, ins){});
+    moduletest.stop("smoduleA");
+    var m = new moduleb.Mediator();
+    m.emit("moduleB-action", "messageB");
+  }
+]);

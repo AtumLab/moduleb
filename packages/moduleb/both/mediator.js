@@ -7,7 +7,10 @@ var _channels = {};
 
 var mediator = (function(){
   var Mediator = moduleb.CoreObject({
-    _init: function(){}
+    _init: function(){
+      /** save channel for own sandbox */
+      this._listener = {};
+    }
   });
   Mediator.prototype.on = function(channel, fn, context){
     var self = this;
@@ -17,6 +20,8 @@ var mediator = (function(){
     if(_channels[channel] == null) {
       _channels[channel] = [];
     }
+    if(!this._listener[channel])
+      this._listener[channel] = [];
 
     if (typeof fn !== "function") {
       return false;
@@ -27,8 +32,8 @@ var mediator = (function(){
     subscription = {
       context: context,
       callback: fn
-    };
-    return {
+    };    
+    var listen = {
       attach: function() {
         _channels[channel].push(subscription);
         return this;
@@ -37,7 +42,9 @@ var mediator = (function(){
         Mediator._rm(self, channel, subscription.callback);
         return this;
       }
-    }.attach();
+    };
+    this._listener[channel].push(listen);
+    return listen.attach();
   };
   Mediator.prototype.emit = function(channel, data, cb) {
     var chnls, sub, subscribers, tasks;
@@ -61,7 +68,6 @@ var mediator = (function(){
       
       return this;
   };
-
   Mediator.prototype.off = function(ch, cb) {
     var id;
     switch (typeof ch) {
@@ -91,6 +97,15 @@ var mediator = (function(){
     }
     return this;
   };
+  Mediator.prototype.offAll = function(){
+    _.each(this._listener, function(v1, i1){
+      _.each(v1, function(v2, i2){
+        // remove
+        v2.detach();
+      });
+    });
+    return this;
+  }
   /**
    * Remove 
    * @param {object} o Mediator object 
@@ -98,7 +113,7 @@ var mediator = (function(){
    * @param {function} cb Callback function
    * @param {object} ctxt Content
    * @return {null}
-   * @private
+   * @private, static
    */
   Mediator._rm = function(o, ch, cb, ctxt) {
     var s;
