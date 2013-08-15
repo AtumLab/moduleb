@@ -1,5 +1,6 @@
 /**
  * @fileoverview Module
+ * added
  */
  /**
  * Module
@@ -182,34 +183,27 @@ moduleb.Core.prototype._createInstance = function(moduleId, instanceId, opt) {
   _sandboxes[instanceId] = sb;
   return instance;      
 }
-moduleb.Core.prototype.stop = function(instanceId, callback){
+/**
+ * description
+ * @param {string} instanceId
+ * 
+ * @return {object} 
+ */
+moduleb.Core.prototype.stop = function(instanceId, cb){
   var instance, x,
     _this = this;
   if(instance = _instances[instanceId]) {
     delete _instances[instanceId];
-    //console.log(instance);
     instance.sandbox.offAll();
-    /**
-    this._mediator.off(instance);
-
-
-        this._runSandboxPlugins('destroy', this._sandboxes[id], function(err) {
-          if (instance.destroy == null) {
-            instance.destroy = function() {};
-          }
-          if (util.hasArgument(instance.destroy)) {
-            return instance.destroy(function(err) {
-              if (err) {
-                this._instances[id] = instance;
-              }
-              return typeof cb === "function" ? cb(err) : void 0;
-            });
-          } else {
-            instance.destroy();
-            return typeof cb === "function" ? cb(null) : void 0;
-          }
-        });
-    */
+    try{
+      instance._destroy();
+    } catch (e) {
+      _instances[instanceId] = instance;
+      if (cb != null)
+        cb (e);
+      else
+        throw e;
+    }
   }
   return this;
 };

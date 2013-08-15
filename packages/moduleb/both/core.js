@@ -4,6 +4,8 @@
  * 
  * @author particle4dev@gmail.com (Steve Hoang)
  * @version		0.2
+ * https://github.com/AtumLab/moduleb
+ * added
  */
 var root = this;
 /**
