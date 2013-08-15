@@ -1,6 +1,9 @@
+/**
+ * @fileoverview Mediator
+ * added
+ */
 
 /**
- * 
  * @private
  */
 var _channels = {};

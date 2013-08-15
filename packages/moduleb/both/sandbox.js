@@ -1,4 +1,8 @@
 /**
+ * @fileoverview sandbox
+ * added
+ */
+/**
  * @fileoverview Sandbox Sandbox is responsible for:
  * <ul>
  *    <li> Providing access to common features to modules
