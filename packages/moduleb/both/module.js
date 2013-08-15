@@ -159,6 +159,7 @@ moduleb.Core.prototype.start = function(moduleId, opt, cb) {
     instance.running = true;
     if (cb != null)
       cb (null, instance)
+    return instance;
   } catch (e) {
     if (cb != null)
       cb (e, null);

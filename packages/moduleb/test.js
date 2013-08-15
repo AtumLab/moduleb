@@ -208,7 +208,10 @@ testAsyncMulti("module form - module form", [
       };
       return function(){
         //Private variables and methods
-        var CPU = 'intel';
+        var CPU;
+        this._init = function(object){
+          CPU = 'intel';
+        };
         var setCPU = function(value){
           CPU = value;
         };
@@ -232,5 +235,13 @@ testAsyncMulti("module form - module form", [
     })();    
     //public static
     retinaMacbook.price = 2600;
+    moduletest.Module( "RetinaMacbook", retinaMacbook, {}, function(e){
+      if(!e){}
+    });
+    var r1 = moduletest.start("RetinaMacbook", {instanceId: "retinaMacbook1"});
+    var r2 =  moduletest.start("RetinaMacbook", {instanceId: "retinaMacbook2"});
+    r1.setStaticPropertyRAM(99);
+    test.equal(r2.getStaticPropertyRAM(), 99, 'test module form -static property ram- expected 99');
+    
   }
 ]);

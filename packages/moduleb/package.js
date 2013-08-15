@@ -11,6 +11,7 @@ Package.on_use(function (api) {
   api.use(["templating", "jquery", "session"], "client");
   // 2-load file boot
   api.add_files([
+    "both/logger.js",
     "both/_helper.js",
     "both/_boot.js",
     "both/coreobject.js", 
