@@ -89,7 +89,9 @@ moduleb.Core.prototype.Module = function(moduleId, creator, opt, cb){
     namespaceForModule(moduleId, {
       creator: creator,
       options: opt,
-      id: moduleId
+      id: moduleId,
+      implementClient: {},
+      implementServer: {}
     });
     if(cb)
       cb (null);
@@ -110,7 +112,12 @@ moduleb.Core.prototype.implement = function(moduleId, obj){
       throw new Error("could not implement module " + moduleId);
     }
     var module = find(moduleId);
-    _.extend(module.creator.prototype, obj);
+    if (Meteor.isClient) {
+      module.implementClient = obj;
+    }
+    else if (Meteor.isServer) {     
+      module.implementServer = obj;
+    }
     return this;    
   } catch (e) {
     console.error(e.message);
@@ -173,6 +180,13 @@ moduleb.Core.prototype._createInstance = function(moduleId, instanceId, opt) {
   sb.moduleId = moduleId;
   var instance;
   instance = new module.creator(sb);
+  // implement
+  if (Meteor.isClient) {
+    _.extend(instance, module.implementClient);
+  }
+  else if (Meteor.isServer) {
+    _.extend(instance, module.implementServer);
+  }
   if (typeof instance._init !== "function") {
     throw new Error("module has no '_init' method");
   }

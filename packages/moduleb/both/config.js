@@ -8,6 +8,8 @@ moduleb.Core.prototype.setConfigs = function(obj){
   _.extend(_config, obj);  
 };
 moduleb.Core.prototype.getConfig = function(name){
+  if(!_config[name])
+    return null;
   return _config[name]; 
 };
 moduleb.Core.prototype.setConfig = function(name, value){

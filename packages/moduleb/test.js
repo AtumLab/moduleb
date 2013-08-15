@@ -87,7 +87,7 @@ testAsyncMulti("module - module", [
   },
   function (test, expect) {
     moduletest.Module( "namespace.OtherModule", function( sandbox ){      
-      var r = {      
+      return {      
         _init : function (option) {
           test.equal(option.start, true, "[module]._init expected option from [app].start is true");
         },
@@ -95,8 +95,6 @@ testAsyncMulti("module - module", [
         _initServer : function (option) {},
         _destroy : function () {}
       };
-      _.extend(r, this);
-      return r;
     }, {module: true}, function(e){
       if(!e){      
         moduletest.implement( "namespace.OtherModule", {
@@ -134,11 +132,11 @@ testAsyncMulti("mediator - mediator", [
     test.equal(result, "message", "[app].Mediator check off() expected message text");
   }
 ]);
-testAsyncMulti("module-sandbox", [
+testAsyncMulti("module_sandbox - module_sandbox", [
   function (test, expect) {
     var count = 0;
     moduletest.Module( "moduleA", function( sandbox ){      
-      var r = {
+      return {
         _init : function (option) {
           console.log('moduleA start');
           sandbox.on("moduleB-action", this.timeLine);
@@ -151,13 +149,11 @@ testAsyncMulti("module-sandbox", [
         },
         _destroy : function () {}
       };
-      _.extend(r, this);
-      return r;
     }, {module: true}, function(e){
       if(!e){}
     });
     moduletest.Module( "moduleB", function( sandbox ){      
-      var r = {
+      return {
         _init : function (option) {
           console.log('moduleB start');
           this.sendMessage();
@@ -169,8 +165,6 @@ testAsyncMulti("module-sandbox", [
         },
         _destroy : function () {}
       };
-      _.extend(r, this);
-      return r;
     }, {module: true}, function(e){
       if(!e){}
     });
@@ -198,5 +192,45 @@ testAsyncMulti("config - config", [
     test.equal(moduletest.getConfig('module3'), 10, 'test config - expected 10');
     moduletest.deleteConfig('module1');
     test.equal(moduletest.getConfig('module1'), null, 'test config - expected null');
+    test.equal(moduletest.getConfig('nonexits'), null, 'test config - expected null');
+  }
+]);
+
+testAsyncMulti("module form - module form", [
+  function (test, expect) {
+    var retinaMacbook = (function() {
+      //Private static variables
+      var RAM, addRAM;
+      RAM = 4;
+      //Private static method
+      addRAM = function (additionalRAM) {
+        RAM += additionalRAM;
+      };
+      return function(){
+        //Private variables and methods
+        var CPU = 'intel';
+        var setCPU = function(value){
+          CPU = value;
+        };
+        //Public variables and methods
+        this.USB = null;
+        this.insertUSB = function(device){
+          this.USB = device;
+        };
+        this.removeUSB = function () {
+          var device = this.USB;
+          this.USB = undefined;
+          return device;
+        };
+        this.setStaticPropertyRAM = function(value){
+          RAM = value;
+        };
+        this.getStaticPropertyRAM = function(){
+          return RAM;
+        };
+      };
+    })();    
+    //public static
+    retinaMacbook.price = 2600;
   }
 ]);

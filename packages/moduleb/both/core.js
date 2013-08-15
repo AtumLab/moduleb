@@ -12,7 +12,7 @@ var root = this;
  * App name
  * @private 
  */
-_APPNAME = '';
+root._APPNAME = '';
 /**
 var _findModule = function (ns_string, callback, content) {
     var parts = ns_string.split('.'),
@@ -71,7 +71,7 @@ _findsModule = function () {
  * Module B
  */
 var core = function(name, obj){
-  _APPNAME = name;
+  root._APPNAME = name;
   root[_APPNAME] = this;
   _.extend(this, obj);
   // add propertype
