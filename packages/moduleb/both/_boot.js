@@ -1,5 +1,6 @@
 /**
  * @fileoverview
+ * added
  */
 var root = this;
 root.moduleb = {};

@@ -9,7 +9,7 @@ if (Meteor.isServer) {
 if (Meteor.isClient) {
   // test only client
 }
-Tinytest.add('moduleb', function(test){
+Tinytest.add('moduleb - moduleb', function(test){
   test.equal(moduleb.VERSION, 0.2, "moduleb.VERSION doesnt exit");
   test.equal(_.isFunction(moduleb.Mediator), true, "[app].Mediator check Mediator expected a function");
   test.equal(_.isFunction(moduleb.Sandbox), true, "[app].Sandbox check Sandbox expected a function");
@@ -17,7 +17,7 @@ Tinytest.add('moduleb', function(test){
   test.equal(_.isFunction(moduleb.CoreObject), true, "[app].CoreObject check CoreObject expected a function");
 });
 
-Tinytest.add('core', function(test){
+Tinytest.add('core - core', function(test){
   var count = 0;
   var app = new moduleb.Core("coretest", {
     _init: function(){
@@ -34,7 +34,7 @@ Tinytest.add('core', function(test){
   test.equal(count, 2, "[app.]_init _initClient _initServer expected 2");  
 });
 
-testAsyncMulti("module", [
+testAsyncMulti("module - module", [
   function (test, expect) {
     var moduletest = new moduleb.Core("moduletest", {});
     // register module 
@@ -120,7 +120,7 @@ testAsyncMulti("module", [
   }
   ]
 );
-testAsyncMulti("mediator", [
+testAsyncMulti("mediator - mediator", [
   function (test, expect) {
     var m = new moduleb.Mediator(), result,
     callBack = function(data){
@@ -134,9 +134,9 @@ testAsyncMulti("mediator", [
     test.equal(result, "message", "[app].Mediator check off() expected message text");
   }
 ]);
-
 testAsyncMulti("module-sandbox", [
   function (test, expect) {
+    var count = 0;
     moduletest.Module( "moduleA", function( sandbox ){      
       var r = {
         _init : function (option) {
@@ -145,7 +145,8 @@ testAsyncMulti("module-sandbox", [
         },
         _initClient : function (option) {},
         _initServer : function (option) {},
-        timeLine: function(time){            
+        timeLine: function(time){
+          count++;           
           test.equal(time, "messageB", "[module] sandbox text expected messageB");
         },
         _destroy : function () {}
@@ -182,5 +183,20 @@ testAsyncMulti("module-sandbox", [
     moduletest.stop("smoduleA");
     var m = new moduleb.Mediator();
     m.emit("moduleB-action", "messageB");
+    test.equal(count, 1, "expected count = 1");
+  }
+]);
+testAsyncMulti("config - config", [
+  function (test, expect) {
+    moduletest.setConfigs({
+      module1: 'a',
+      module2: 'b',
+      module3: 2
+    });
+    test.equal(moduletest.getConfig('module2'), 'b', 'test config - expected b');
+    moduletest.setConfig('module3', 10);
+    test.equal(moduletest.getConfig('module3'), 10, 'test config - expected 10');
+    moduletest.deleteConfig('module1');
+    test.equal(moduletest.getConfig('module1'), null, 'test config - expected null');
   }
 ]);

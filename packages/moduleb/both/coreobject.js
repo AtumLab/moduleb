@@ -1,9 +1,9 @@
 /**
  * @fileoverview Core Object
- * 
+ * added
  */
 var root = this;
-var co = function(obj){
+var coreObjectFunction = function(obj){
   var CoreObject = function(){
     _.extend(this, obj);
     /** Environment */    
@@ -25,4 +25,4 @@ var co = function(obj){
   return CoreObject;
 }
 
-moduleb.CoreObject = co;
+moduleb.CoreObject = coreObjectFunction;
